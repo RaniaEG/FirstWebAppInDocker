@@ -1,0 +1,55 @@
+﻿@using FirstWebAppInDocker.Models.ViewModels.Resource
+@model ResourceViewModel
+
+@{
+    ViewData["Title"] = "Resource Overview";
+}
+
+<h2>Resource Overview</h2>
+<p><strong>Name:</strong> @Model.Name</p>
+<p><strong>Description:</strong> @Model.Description</p>
+<p><strong>Type:</strong> @string.Join(", ", Model.Type)</p>
+<p><strong>Latitude:</strong> @Model.Latitude</p>
+<p><strong>Longitude:</strong> @Model.Longitude</p>
+
+@*<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />*@
+<div id="map" style="height: 500px;"></div>
+
+@section Scripts {
+    @*<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>*@
+    <script>
+        (function () {
+            // Use invariant culture to ensure dots as decimal separators
+            var lat = @Model.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var lng = @Model.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            // Initialize the map
+            var map = L.map('map').setView([lat, lng], 13);
+
+            // Add a tile layer to the map
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Create a marker at the model coordinates
+            var marker = L.marker([lat, lng]).addTo(map);
+
+            // Reverse geocode using Nominatim (jsonv2 recommended)
+            var url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+
+            fetch(url)
+                .then(function (response) {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(function (data) {
+                    var address = data && data.display_name ? data.display_name : 'Address not found';
+                    marker.bindPopup('<b>Address:</b> ' + address).openPopup();
+                })
+                .catch(function (err) {
+                    console.error('Reverse geocode failed:', err);
+                    marker.bindPopup('<b>Address:</b> Not available').openPopup();
+                });
+        })();
+    </script>
+}
