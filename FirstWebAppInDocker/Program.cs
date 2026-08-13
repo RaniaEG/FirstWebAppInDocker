@@ -27,3 +27,4 @@ app.MapControllerRoute(
 
 
 app.Run();
+Console.WriteLine("Hello, World!");
