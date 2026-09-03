@@ -1,7 +1,16 @@
+using MySqlConnector;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Get connection string from “appsettings.json” file
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Register the services that uses the connection string
+// Create an instance of MySqlConnection
+builder.Services.AddSingleton(new MySqlConnection(connectionString));
+
 
 var app = builder.Build();
 

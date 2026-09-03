@@ -1,0 +1,64 @@
+﻿@using FirstWebAppInDocker.Models.ViewModels.Resource
+@model ResourceViewModel
+
+@{
+    ViewData["Title"] = "Resource Form";
+}
+
+<form asp-action="ResourceOverview" method="post">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Type"></label>
+        <select asp-for="Type" class="form-control" multiple>
+            @foreach (var type in Model.Type)
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+     <label>Location</label>
+    <div id="map" style="height: 400px;"></div>
+    <input type="hidden" id="latitude" name="Latitude" asp-for="Latitude" />
+    <input type="hidden" id="longitude" name="Longitude" asp-for="Longitude" />
+
+    <button type="submit" class="btn btn-primary">Save</button>
+
+</form>
+
+@section Scripts {
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([58.163, 8.003], 13);
+        // Add a tile layer to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        // Add a marker to the map
+        var marker = L.marker([58.163, 8.003]).addTo(map);
+
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+            marker.setLatLng([lat, lng]);
+            
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            L.marker([lat, lng]).addTo(map);
+        });
+    </script>
+
+    <!-- Client-side validation scripts -->
+    <partial name="_ValidationScriptsPartial" /> 
+}
+
