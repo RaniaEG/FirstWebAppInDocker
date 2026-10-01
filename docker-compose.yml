@@ -8,7 +8,7 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mariadbcontainer;Database=mysql;User=root;Password=myDB123; 
+      - ConnectionStrings__DefaultConnection=Server=mariadbcontainer;Database=resourcesdb;User=root;Password=myDB123;
     networks:
       - appnet
 networks:

@@ -27,11 +27,6 @@ namespace FirstWebAppInDocker.Controllers
                 await using var connection = new MySqlConnection(_connectionString);
                 await connection.OpenAsync();
 
-                /****** Explanation from Espen******/
-                //var result = await connection.GetAllTheData();
-                //var otherStuff = await connection.GetOtherSTuff();
-                //viewModel.result = result;
-
                 return View("Index", viewModel1);
             }
             catch (Exception ex)
