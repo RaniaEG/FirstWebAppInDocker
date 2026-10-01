@@ -8,20 +8,24 @@
 <h2>Resource Overview</h2>
 <p><strong>Name:</strong> @Model.Name</p>
 <p><strong>Description:</strong> @Model.Description</p>
-<p><strong>Type:</strong> @string.Join(", ", Model.Type)</p>
+<p><strong>Type:</strong> @string.Join(", ", Model.SelectedTypes)</p>
 <p><strong>Latitude:</strong> @Model.Latitude</p>
 <p><strong>Longitude:</strong> @Model.Longitude</p>
 
-@*<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />*@
-<div id="map" style="height: 500px;"></div>
+
+<div id="map" data-lat="@Model.Latitude" data-lng="@Model.Longitude" style="height: 500px;"></div>
 
 @section Scripts {
-    @*<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>*@
+    
     <script>
         (function () {
-            // Use invariant culture to ensure dots as decimal separators
-            var lat = @Model.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            var lng = @Model.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            // Use invariant culture to ensure dots as decimal separators and fall back to default coordinates
+            // Read coordinates from data attributes and fall back to defaults
+            var mapEl = document.getElementById('map');
+            var lat = parseFloat(mapEl.dataset.lat);
+            var lng = parseFloat(mapEl.dataset.lng);
+            if (isNaN(lat)) lat = 58.163;
+            if (isNaN(lng)) lng = 8.003;
 
             // Initialize the map
             var map = L.map('map').setView([lat, lng], 13);
@@ -31,10 +35,15 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Create a marker at the model coordinates
-            var marker = L.marker([lat, lng]).addTo(map);
+            // Initialize the feature group that will hold layers (consistent with ResourceForm)
+            var drawnItems = new L.FeatureGroup();
+            map.addLayer(drawnItems);
 
-            // Reverse geocode using Nominatim (jsonv2 recommended)
+            // Create a marker at the model coordinates and add it to the feature group
+            var marker = L.marker([lat, lng]);
+            drawnItems.addLayer(marker);
+
+            // Open popup after reverse geocode to ensure the address is displayed
             var url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
 
             fetch(url)
